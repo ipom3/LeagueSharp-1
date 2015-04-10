@@ -214,6 +214,10 @@ namespace Support
                         new Tristana();
                         loaded = true;
                         break;
+                    case "urgot":
+                        new Urgot();
+                        loaded = true;
+                        break;
                     case "vayne":
                         new Vayne();
                         loaded = true;
