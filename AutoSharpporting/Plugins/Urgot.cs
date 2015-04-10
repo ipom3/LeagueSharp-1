@@ -70,41 +70,23 @@ namespace Support.Plugins
             {
                 SpellSecondQ();
                 SpellQ(target);
-                if (Q.CastCheck(Target, "ComboQ"))
-                {
-                    Q.Cast(Target, false);
-                }
-                if (E.CastCheck(Target, "ComboW"))
+                
+                if (E.CastCheck(Target, true))
                 {
                     E.Cast(Target, true);
                 }
-
-                if (R.CastCheck(Target, "ComboR"))
-                {
-                    R.Cast(Target, true);
-                }
-                W.Cast(Player, true);
                 
-          
-
-            if (castW)
-            {
-                SpellW(target);
-            }
-            if (castR)
-            {
-                AutoR(target);
-            }
-            
+                W.Cast(Player, true);
             }
         }
+        
         internal static void SpellSecondQ()
         {
             foreach (var obj in
                 ObjectManager.Get<Obj_AI_Hero>()
-                    .Where(obj => obj.IsValidTarget(SpellClass.Q2.Range) && obj.HasBuff("urgotcorrosivedebuff", true)))
+                    .Where(obj => obj.IsValidTarget(Q2.Range) && obj.HasBuff("urgotcorrosivedebuff", true)))
             {
-                SpellClass.Q2.Cast(obj.ServerPosition, PacketCast);
+                Q2.Cast(obj.ServerPosition, true);
             }
         }
 
@@ -113,20 +95,14 @@ namespace Support.Plugins
             if (t.HasBuff("urgotcorrosivedebuff", true))
                 return;
 
-                SpellClass.Q.Cast(t, PacketCast);
-        }
-
-        private static void SpellW(Obj_AI_Base t)
-        {
-            var distance = ObjectManager.Player.Distance(t);
-
-            if (SpellClass.W.IsReady() && distance <= 100 || (distance >= 900 && distance <= 1200) && t.HasBuff("urgotcorrosivedebuff", true))
+            if (Q.IsReady() && Q.IsInRange(t))
             {
-                SpellClass.W.Cast(Player, PacketCast);
+                Q.Cast(t, true);
             }
         }
 
-        internal static void SpellE(Obj_AI_Base t)
+
+ /*       internal static void SpellE(Obj_AI_Base t)
         {
             var hitchance = (HitChance)(ComboMenu.Item("preE").GetValue<StringList>().SelectedIndex + 3);
 
@@ -134,7 +110,7 @@ namespace Support.Plugins
             {
                 SpellClass.E.CastIfHitchanceEquals(t, hitchance, PacketCast);
             }
-        }
+        }*/
 
 
         
