@@ -1,7 +1,7 @@
 #region LICENSE
 
 // Copyright 2015-2015 Support
-// Annie.cs is part of Support.
+// Urgot.cs is part of Support.
 // 
 // Support is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Support. If not, see <http://www.gnu.org/licenses/>.
 // 
-// Filename: Support/Support/Annie.cs
+// Filename: Support/Support/Urgot.cs
 // Created:  10/01/2015
 // Date:     20/01/2015/11:20
 // Author:   h3h3
@@ -39,107 +39,115 @@ namespace Support.Plugins
 
     #endregion
 
-    public class Annie : PluginBase
+    public class Urgot : PluginBase
     {
-        public Annie()
+        public Urgot()
         {
-            Q = new Spell(SpellSlot.Q, 650);
+            Q = new Spell(SpellSlot.Q, 1000);
+            Q2 = new Spell(SpellSlot.Q, 1200);
+            W = new Spell(SpellSlot.W);
+            E = new Spell(SpellSlot.E, 900);
+            R = new Spell(SpellSlot.R);
+
+            Q.SetSkillshot(0.10f, 100f, 1600f, true, SkillshotType.SkillshotLine);
+            Q2.SetSkillshot(0.10f, 100f, 1600f, false, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.283f, 0f, 1750f, false, SkillshotType.SkillshotCircle);
+            R.SetTargetted(250, 550);
+            
+            /*Q = new Spell(SpellSlot.Q, 650);
             W = new Spell(SpellSlot.W, 625);
             E = new Spell(SpellSlot.E);
             R = new Spell(SpellSlot.R, 600);
 
             Q.SetTargetted(250, 1400);
             W.SetSkillshot(600, (float) (50 * Math.PI / 180), float.MaxValue, false, SkillshotType.SkillshotCone);
-            R.SetSkillshot(250, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);
+            R.SetSkillshot(250, 200, float.MaxValue, false, SkillshotType.SkillshotCircle);*/
         }
 
         public override void OnUpdate(EventArgs args)
         {
             if (ComboMode)
             {
+                SpellSecondQ();
+                SpellQ(target);
                 if (Q.CastCheck(Target, "ComboQ"))
                 {
                     Q.Cast(Target, false);
                 }
-                if (W.CastCheck(Target, "ComboW"))
+                if (E.CastCheck(Target, "ComboW"))
                 {
-                    W.Cast(Target, true);
+                    E.Cast(Target, true);
                 }
 
                 if (R.CastCheck(Target, "ComboR"))
                 {
                     R.Cast(Target, true);
                 }
-                CastE();
+                W.Cast(Player, true);
+                
+          
+
+            if (castW)
+            {
+                SpellW(target);
+            }
+            if (castR)
+            {
+                AutoR(target);
+            }
+            
+            }
+        }
+        internal static void SpellSecondQ()
+        {
+            foreach (var obj in
+                ObjectManager.Get<Obj_AI_Hero>()
+                    .Where(obj => obj.IsValidTarget(SpellClass.Q2.Range) && obj.HasBuff("urgotcorrosivedebuff", true)))
+            {
+                SpellClass.Q2.Cast(obj.ServerPosition, PacketCast);
             }
         }
 
+        internal static void SpellQ(Obj_AI_Base t)
+        {
+            if (t.HasBuff("urgotcorrosivedebuff", true))
+                return;
+
+                SpellClass.Q.Cast(t, PacketCast);
+        }
+
+        private static void SpellW(Obj_AI_Base t)
+        {
+            var distance = ObjectManager.Player.Distance(t);
+
+            if (SpellClass.W.IsReady() && distance <= 100 || (distance >= 900 && distance <= 1200) && t.HasBuff("urgotcorrosivedebuff", true))
+            {
+                SpellClass.W.Cast(Player, PacketCast);
+            }
+        }
+
+        internal static void SpellE(Obj_AI_Base t)
+        {
+            var hitchance = (HitChance)(ComboMenu.Item("preE").GetValue<StringList>().SelectedIndex + 3);
+
+            if (SpellClass.E.IsInRange(t) && SpellClass.E.IsReady())
+            {
+                SpellClass.E.CastIfHitchanceEquals(t, hitchance, PacketCast);
+            }
+        }
+
+
+        
         public override void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
         {
             if (spell.DangerLevel < InterruptableDangerLevel.High || unit.IsAlly)
             {
                 return;
             }
-            if (GetPassiveStacks() >= 4)
-            {
-                if (Q.CastCheck(unit, "Interrupt.Q"))
-                {
-                    Q.Cast(unit);
-                    return;
-                }
-                if (W.CastCheck(unit, "Interrupt.W"))
-                {
-                    W.CastOnUnit(unit);
-                    return;
-                }
-            }
-            if (GetPassiveStacks() == 3)
-            {
-                if (E.IsReady())
-                {
-                    E.Cast();
-                    if (Q.CastCheck(unit, "Interrupt.Q"))
-                    {
-                        Q.Cast(unit);
-                        return;
-                    }
-                    if (W.CastCheck(unit, "Interrupt.W"))
-                    {
-                        W.CastOnUnit(unit);
-                        return;
-                    }
-                }
-                if (Q.CastCheck(unit, "Interrupt.Q") && W.CastCheck(unit, "Interrupt.W"))
-                {
-                    Q.Cast(unit);
-                    W.CastOnUnit(unit);
-                }
-            }
+       
+            R.Cast(unit);
         }
 
-        private void CastE()
-        {
-            if (GetPassiveStacks() < 4 && !ObjectManager.Player.IsRecalling())
-            {
-                E.Cast();
-            }
-        }
-
-        //sosharp love xSalice
-        private int GetPassiveStacks()
-        {
-            var buffs =
-                ObjectManager.Player.Buffs.Where(
-                    buff => (buff.Name.ToLower() == "pyromania" || buff.Name.ToLower() == "pyromania_particle"));
-            var buffInstances = buffs as BuffInstance[] ?? buffs.ToArray();
-            if (!buffInstances.Any())
-            {
-                return 0;
-            }
-            var buf = buffInstances.First();
-            var count = buf.Count >= 4 ? 4 : buf.Count;
-            return buf.Name.ToLower() == "pyromania_particle" ? 4 : count;
-        }
 
         public override void ComboMenu(Menu config)
         {
