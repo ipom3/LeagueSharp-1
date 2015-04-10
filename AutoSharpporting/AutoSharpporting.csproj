@@ -167,6 +167,7 @@
     <Compile Include="Plugins\Taric.cs" />
     <Compile Include="Plugins\Thresh.cs" />
     <Compile Include="Util\Helpers.cs" />
+    <Compile Include="Plugins\Urgot.cs" />
     <Compile Include="Plugins\Zilean.cs" />
     <Compile Include="Plugins\Zyra.cs" />
   </ItemGroup>
