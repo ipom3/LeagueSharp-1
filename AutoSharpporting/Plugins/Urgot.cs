@@ -81,7 +81,7 @@ namespace Support.Plugins
             }
         }
         
-        internal static void SpellSecondQ()
+        internal void SpellSecondQ()
         {
             foreach (var obj in
                 ObjectManager.Get<Obj_AI_Hero>()
@@ -91,7 +91,7 @@ namespace Support.Plugins
             }
         }
 
-        internal static void SpellQ(Obj_AI_Base t)
+        internal void SpellQ(Obj_AI_Base t)
         {
             if (t.HasBuff("urgotcorrosivedebuff", true))
                 return;
