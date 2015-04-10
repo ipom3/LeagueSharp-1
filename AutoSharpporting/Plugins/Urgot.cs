@@ -41,6 +41,7 @@ namespace Support.Plugins
 
     public class Urgot : PluginBase
     {
+        private Spell Q2;
         public Urgot()
         {
             Q = new Spell(SpellSlot.Q, 1000);
@@ -69,7 +70,7 @@ namespace Support.Plugins
             if (ComboMode)
             {
                 SpellSecondQ();
-                SpellQ(target);
+                SpellQ(Target);
                 
                 if (E.CastCheck(Target, true))
                 {
