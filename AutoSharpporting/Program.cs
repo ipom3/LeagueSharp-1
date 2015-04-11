@@ -39,6 +39,10 @@ namespace Support
 
             CustomEvents.Game.OnGameLoad += a =>
             {
+                if (Player.ChampionName == "Urgot")
+                {
+                    return;
+                }
                 Helpers.UpdateCheck();
                 Protector.Init();
                 new PluginLoader();
