@@ -31,7 +31,11 @@ namespace Support
     internal class Program
     {
         public static Version Version;
-
+        private static Obj_AI_Hero Player
+        {
+            get { return ObjectManager.Player; }
+        }
+        
         private static void Main(string[] args)
         {
             new Autoplay();
