@@ -74,6 +74,10 @@ namespace Support
 
         private static void OnGameLoad(EventArgs args)
         {
+            if (Player.ChampionName == "Urgot")
+            {
+                return;
+            }
             _loaded = (Bot.Level == 1) ? Environment.TickCount:Environment.TickCount - 140000;
             _stepTime = Environment.TickCount;
             var map = Utility.Map.GetMap();
