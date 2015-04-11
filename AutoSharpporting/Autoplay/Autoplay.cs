@@ -59,6 +59,11 @@ namespace Support
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
         }
 
+        private static Obj_AI_Hero Player
+        {
+            get { return ObjectManager.Player; }
+        }
+
         public static bool RandomDecision()
         {
             return Rand.Next(0, 20) > 10; //Hi there riot games ^^
